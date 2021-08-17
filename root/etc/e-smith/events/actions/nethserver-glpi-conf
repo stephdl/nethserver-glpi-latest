@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# This script is part of NethServer.
+# 
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+# 
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
+#
+source /opt/rh/rh-mariadb105/enable
+
+password=`perl -e "use NethServer::Password; print NethServer::Password::store('glpi');"`
+systemctl is-active --quiet rh-mariadb105-mariadb@glpi
+
+if [[ $? -ne 0 ]]; then
+    systemctl start rh-mariadb105-mariadb@glpi
+    max_wait=20
+    wait=0
+    while ! mysql --socket /run/rh-mariadb105-mariadb/glpi-mysql.sock -e "SHOW DATABASES" 2>/dev/null; do
+        sleep 1
+        wait=$((wait+1))
+        if [[ $wait -ge $max_wait ]]; then
+            echo "[ERROR] Can't start rh-mariadb105-mariadb@glpi"
+            exit 1
+        fi
+    done
+fi
+
+if [[ ! -d '/var/opt/rh/rh-mariadb105/lib/mysql-glpi' ]]; then
+    # initialize grants mysql glpi database
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "CREATE DATABASE IF NOT EXISTS glpi;"
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "ALTER DATABASE glpi CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "grant all on glpi.* to 'glpi'@'localhost' identified by '$password';"
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "GRANT SELECT ON `mysql`.`time_zone_name` TO 'glpi'@'localhost';"
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "FLUSH PRIVILEGES"
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "use glpi"
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "source /usr/share/glpi/install/mysql/glpi-empty.sql"
+    /opt/rh/rh-mariadb105/root/usr/bin/mysql_tzinfo_to_sql /usr/share/zoneinfo
+else
+    /opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:enable
+    /opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console db:update
+    /opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:disable
+fi
+
