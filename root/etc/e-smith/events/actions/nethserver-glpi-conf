@@ -18,7 +18,6 @@
 source /opt/rh/rh-mariadb105/enable
 
 password=`perl -e "use NethServer::Password; print NethServer::Password::store('glpi');"`
-systemctl is-active --quiet rh-mariadb105-mariadb@glpi
 
 databaseTest () {
     out=$(mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -BN -e "select count(*) from information_schema.tables where table_type = 'BASE TABLE' and table_schema = 'glpi'")
@@ -29,6 +28,7 @@ databaseTest () {
     fi
 }
 
+systemctl is-active --quiet rh-mariadb105-mariadb@glpi
 if [[ $? -ne 0 ]]; then
     systemctl start rh-mariadb105-mariadb@glpi
     max_wait=20
@@ -43,7 +43,7 @@ if [[ $? -ne 0 ]]; then
     done
 fi
 
-if ! databaseTest ; then
+if databaseTest ; then
     # initialize grants mysql glpi database
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "CREATE DATABASE IF NOT EXISTS glpi;"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "ALTER DATABASE glpi CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
@@ -51,7 +51,7 @@ if ! databaseTest ; then
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "GRANT SELECT ON `mysql`.`time_zone_name` TO 'glpi'@'localhost';"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "FLUSH PRIVILEGES"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "use glpi"
-    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "source /usr/share/glpi/install/mysql/glpi-empty.sql"
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock glpi < /usr/share/glpi/install/mysql/glpi-empty.sql
     /opt/rh/rh-mariadb105/root/usr/bin/mysql_tzinfo_to_sql /usr/share/zoneinfo
 else
     /opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:enable
