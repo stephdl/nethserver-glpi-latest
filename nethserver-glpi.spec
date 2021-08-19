@@ -39,6 +39,7 @@ cp -a logo.png %{buildroot}/usr/share/cockpit/%{name}/
 cp -a %{name}.json %{buildroot}/usr/share/cockpit/nethserver/applications/
 cp -a api/* %{buildroot}/usr/libexec/nethserver/api/%{name}/
 
+mkdir -p %{buildroot}/var/opt/rh/rh-mariadb105/lib/mysql-glpi
 
 %{genfilelist} %{buildroot} > %{name}-%{version}-filelist
 
@@ -47,6 +48,7 @@ cp -a api/* %{buildroot}/usr/libexec/nethserver/api/%{name}/
 %doc COPYING
 %dir %{_nseventsdir}/%{name}-update
 %attr(0440,root,root) /etc/sudoers.d/50_nsapi_nethserver_glpi
+%dir %attr(0755,mysql,mysql) /var/opt/rh/rh-mariadb105/lib/mysql-glpi
 
 %postun
 if [ $1 == 0 ] ; then
