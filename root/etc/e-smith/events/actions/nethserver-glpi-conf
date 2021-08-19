@@ -20,6 +20,15 @@ source /opt/rh/rh-mariadb105/enable
 password=`perl -e "use NethServer::Password; print NethServer::Password::store('glpi');"`
 systemctl is-active --quiet rh-mariadb105-mariadb@glpi
 
+databaseTest () {
+    out=$(mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -BN -e "select count(*) from information_schema.tables where table_type = 'BASE TABLE' and table_schema = 'glpi'")
+    if [[ $((out)) -gt "0" ]]; then
+        return 1
+    else
+        return 0
+    fi
+}
+
 if [[ $? -ne 0 ]]; then
     systemctl start rh-mariadb105-mariadb@glpi
     max_wait=20
@@ -34,7 +43,7 @@ if [[ $? -ne 0 ]]; then
     done
 fi
 
-if [[ ! -d '/var/opt/rh/rh-mariadb105/lib/mysql-glpi' ]]; then
+if ! databaseTest ; then
     # initialize grants mysql glpi database
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "CREATE DATABASE IF NOT EXISTS glpi;"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "ALTER DATABASE glpi CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
