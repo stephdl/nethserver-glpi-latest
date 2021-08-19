@@ -41,7 +41,9 @@ cp -a api/* %{buildroot}/usr/libexec/nethserver/api/%{name}/
 
 mkdir -p %{buildroot}/var/opt/rh/rh-mariadb105/lib/mysql-glpi
 
-%{genfilelist} %{buildroot} > %{name}-%{version}-filelist
+%{genfilelist} %{buildroot} \
+    --dir /var/opt/rh/rh-mariadb105/lib/mysql-glpi 'attr(0755,mysql,mysql)' \
+     > %{name}-%{version}-filelist
 
 %files -f %{name}-%{version}-filelist
 %defattr(-,root,root)
