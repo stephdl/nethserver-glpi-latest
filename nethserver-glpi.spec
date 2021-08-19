@@ -10,7 +10,6 @@ License: GPL
 BuildRequires: nethserver-devtools
 
 Requires: nethserver-httpd
-Requires: nethserver-mysql
 Requires: glpi >= 9.5.5
 Requires: nethserver-rh-php73-php-fpm
 Requires: sclo-php73-php-sodium rh-php73-php-xmlrpc libsodium
