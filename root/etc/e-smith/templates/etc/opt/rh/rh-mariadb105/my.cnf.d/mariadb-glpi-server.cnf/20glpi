@@ -3,7 +3,6 @@ datadir=/var/opt/rh/rh-mariadb105/lib/mysql-glpi
 socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock
 log-error=/var/log/rh-mariadb105/glpi.log
 pid-file=/run/rh-mariadb105-mariadb/mariadb-glpi.pid
-skip-networking
 character_set_server = utf8mb4
 collation_server = utf8mb4_general_ci
 transaction_isolation = READ-COMMITTED
