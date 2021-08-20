@@ -54,8 +54,8 @@ if databaseTest ; then
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock glpi < /usr/share/glpi/install/mysql/glpi-empty.sql
     /opt/rh/rh-mariadb105/root/usr/bin/mysql_tzinfo_to_sql /usr/share/zoneinfo
 else
-    /opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:enable
-    /opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console db:update
-    /opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:disable
+    su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:enable"
+    su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console db:update"
+    su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:disable"
 fi
 
