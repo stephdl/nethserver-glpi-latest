@@ -45,10 +45,11 @@ fi
 
 if databaseTest ; then
     # initialize grants mysql glpi database
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "CREATE USER 'glpi'@'%' IDENTIFIED BY '$password';"
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "GRANT USAGE ON *.* TO 'glpi'@'%' IDENTIFIED BY '$password';"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "CREATE DATABASE IF NOT EXISTS glpi;"
-    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "ALTER DATABASE glpi CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
-    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "grant all on glpi.* to 'glpi'@'localhost' identified by '$password';"
-    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "GRANT SELECT ON `mysql`.`time_zone_name` TO 'glpi'@'localhost';"
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "GRANT ALL PRIVILEGES ON `glpi`.* TO 'glpi'@'%';"
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "GRANT SELECT ON `mysql`.`time_zone_name` TO 'glpi'@'%';"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "FLUSH PRIVILEGES"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "use glpi"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock glpi < /usr/share/glpi/install/mysql/glpi-empty.sql
