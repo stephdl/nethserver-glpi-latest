@@ -4,16 +4,11 @@ use NethServer::Password;
 my $db_pass = NethServer::Password::store('glpi');
 
 $OUT .= qq(
- class DB extends DBmysql {
-                
- var \$dbhost = '127.0.0.1:8105';
-                
- var \$dbuser 	= 'glpi';
-                
- var \$dbpassword= '$db_pass';
-                
- var \$dbdefault = 'glpi';
-                
- } 
-?>);
+class DB extends DBmysql {
+   public \$dbhost     = '127.0.0.1:8105';
+   public \$dbuser     = 'glpi';
+   public \$dbpassword = '$db_pass';
+   public \$dbdefault  = 'glpi';
+}
+);
 }
