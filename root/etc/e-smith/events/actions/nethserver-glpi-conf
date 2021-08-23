@@ -53,7 +53,7 @@ if databaseTest ; then
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "FLUSH PRIVILEGES"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "use glpi"
     #mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock glpi < /usr/share/glpi/install/mysql/glpi-empty.sql
-    su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console db:install --no-interaction --db-host=127.0.0.1 --db-port=8105 --db-name=glpi --db-user=glpi --db-password=$password --force"
+    su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console db:install --no-interaction --db-host=127.0.0.1 --db-port=8105 --db-name=glpi --db-user=glpi --db-password=$password --force --reconfigure"
     /opt/rh/rh-mariadb105/root/usr/bin/mysql_tzinfo_to_sql /usr/share/zoneinfo
 else
     su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:enable"
