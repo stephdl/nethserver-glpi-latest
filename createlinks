@@ -42,3 +42,12 @@ event_services('nethserver-glpi-latest-update', qw(
 my $event = 'trusted-networks-modify';
 templates2events("/etc/httpd/conf.d/glpi.conf", $event);
 event_services($event, 'httpd' => 'reload');
+
+# link to backup and restore event
+event_actions("pre-backup-data", qw(
+  nethserver-glpi-latest-rh-mariadb105-dump-database 60
+));
+
+event_actions("post-restore-data", qw(
+  nethserver-glpi-latest-restore-rh-mariadb105-database 03
+));

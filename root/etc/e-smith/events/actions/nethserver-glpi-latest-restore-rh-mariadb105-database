@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# Copyright (C) 2021 Nethesis S.r.l.
+# http://www.nethesis.it - nethserver@nethesis.it
+#
+# This script is part of NethServer.
+#
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
+#
+# exit when any command fails
+set -e
+
+# keep track of the last executed command
+trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
+# echo an error message before exiting
+trap 'echo "Error while restoring glpi database to SCL mariadb105: \"${last_command}\" command filed with exit code $?."' EXIT
+
+source /opt/rh/rh-mariadb105/enable
+
+if [[ ! -f '/var/lib/nethserver/backup/rh-mariadb105/glpi.sql' ]]; then
+    echo "[ERROR] Error the glpi SCL mariadb105 dump does not exist"
+    exit 1
+fi
+
+password=`perl -e "use NethServer::Password; print NethServer::Password::store('glpi');"`
+mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "CREATE DATABASE IF NOT EXISTS glpi;"
+mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock --database glpi < /var/lib/nethserver/backup/rh-mariadb105/glpi.sql
+mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "CREATE USER IF NOT EXISTS 'glpi'@'%' IDENTIFIED BY '$password';"
+mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "grant all on glpi.* to 'glpi'@'%' identified by '$password';"
+mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "GRANT USAGE ON *.* TO 'glpi'@'%' IDENTIFIED BY '$password';"
+mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "GRANT SELECT ON mysql.time_zone_name TO 'glpi'@'%';"
+mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "FLUSH PRIVILEGES"
+mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock mysql
+
+
+
+rm -f /var/lib/nethserver/backup/rh-mariadb105/glpi.sql
