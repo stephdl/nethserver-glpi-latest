@@ -10,5 +10,5 @@ class DB extends DBmysql {
    public \$dbpassword = '$db_pass';
    public \$dbdefault  = 'glpi';
 }
-);
+?>);
 }

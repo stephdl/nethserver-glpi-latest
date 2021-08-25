@@ -1,23 +1,36 @@
 Name: nethserver-glpi-latest
-Version: 1.0.3
-Release: 2%{?dist}
+Version: 1.0.0
+Release: 1%{?dist}
 Summary: Configure glpi
 Source: %{name}-%{version}.tar.gz
 BuildArch: noarch
 URL: %{url_prefix}/%{name}
 License: GPL
+%define glpi_version 9.5.5
+%define glpi_name glpi
+Source1: https://github.com/glpi-project/glpi/releases/download/%{glpi_version}/%{glpi_name}-%{glpi_version}.tgz 
+Source2: glpi-local_define.php
+Source3: glpi-downstream.php
+Source4: glpi-logrotate
 
 BuildRequires: nethserver-devtools
 
 Requires: nethserver-httpd
-Requires: glpi = 9.5.5
+Conflicts: glpi
 Requires: nethserver-rh-php73-php-fpm
 Requires: sclo-php73-php-sodium rh-php73-php-xmlrpc libsodium
 Requires: nethserver-rh-mariadb105
 %description
 Install and configure a glpi instance on NethServer
+GLPI is the Information Resource-Manager with an additional Administration-
+Interface. You can use it to build up a database with an inventory for your 
+company (computer, software, printers...). It has enhanced functions to make
+the daily life for the administrators easier, like a job-tracking-system with
+mail-notification and methods to build a database with basic information 
+about your network-topology.
 
 %prep
+
 %setup
 
 %build
@@ -31,6 +44,36 @@ sed -i 's/_RELEASE_/%{version}/' %{name}.json
 rm -rf %{buildroot}
 (cd root   ; find . -depth -print | cpio -dump %{buildroot})
 
+# set specific settings
+mkdir -p %{buildroot}/etc/%{glpi_name}
+cp  %SOURCE2 %{buildroot}/etc/%{glpi_name}/local_define.php
+
+# configuration file path
+mkdir -p %{buildroot}/usr/share/%{glpi_name}/inc
+cp  %SOURCE3 %{buildroot}/usr/share/glpi/inc/downstream.php
+
+# Log rotate
+mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
+cp -pr %SOURCE4 %{buildroot}%{_sysconfdir}/logrotate.d/glpi
+
+# move all files to /usr/share/glpi
+mkdir -p  %{buildroot}%{_datadir}/%{glpi_name}
+tar xzvf %{SOURCE1} -C %{buildroot}/usr/share
+
+# ===== files =====
+
+mkdir -p %{buildroot}/%{_localstatedir}/lib/%{glpi_name}
+mv %{buildroot}/usr/share/%{glpi_name}/files/* %{buildroot}/%{_localstatedir}/lib/%{glpi_name}
+
+# ===== log =====
+mkdir -p %{buildroot}%{_localstatedir}/log
+mv %{buildroot}/%{_localstatedir}/lib/%{glpi_name}/_log %{buildroot}%{_localstatedir}/log/%{glpi_name}
+
+
+# clean up
+find %{buildroot} -name remove.txt -exec rm -f {} \; -print
+
+
 mkdir -p %{buildroot}/usr/share/cockpit/%{name}/
 mkdir -p %{buildroot}/usr/share/cockpit/nethserver/applications/
 mkdir -p %{buildroot}/usr/libexec/nethserver/api/%{name}/
@@ -42,7 +85,21 @@ cp -a api/* %{buildroot}/usr/libexec/nethserver/api/%{name}/
 mkdir -p %{buildroot}/var/opt/rh/rh-mariadb105/lib/mysql-glpi
 
 %{genfilelist} %{buildroot} \
-    --dir /var/opt/rh/rh-mariadb105/lib/mysql-glpi 'attr(0755,mysql,mysql)' \
+    --dir /var/log/glpi 'attr(2770,apache,apache)' \
+    --dir /var/lib/glpi 'attr(2770,apache,apache)' \
+    --dir /var/lib/glpi/_cache 'attr(2770,apache,apache)' \
+    --dir /var/lib/glpi/_cron 'attr(2770,apache,apache)' \
+    --dir /var/lib/glpi/_dumps 'attr(2770,apache,apache)' \
+    --dir /var/lib/glpi/_graphs 'attr(2770,apache,apache)' \
+    --dir /var/lib/glpi/_locales 'attr(2770,apache,apache)' \
+    --dir /var/lib/glpi/_lock 'attr(2770,apache,apache)' \
+    --dir /var/lib/glpi/_pictures 'attr(2770,apache,apache)' \
+    --dir /var/lib/glpi/_plugins 'attr(2770,apache,apache)' \
+    --dir /var/lib/glpi/_rss 'attr(2770,apache,apache)' \
+    --dir /var/lib/glpi/_sessions 'attr(2770,apache,apache)' \
+    --dir /var/lib/glpi/_tmp 'attr(2770,apache,apache)' \
+    --dir /var/lib/glpi/_uploads 'attr(2770,apache,apache)' \
+    --dir /var/opt/rh/rh-mariadb105/lib/mysql-glpi 'attr(0755,mysql,mysql)'  | grep -v -e '/usr/share/glpi'\
      > %{name}-%{version}-filelist
 
 %files -f %{name}-%{version}-filelist
@@ -51,6 +108,15 @@ mkdir -p %{buildroot}/var/opt/rh/rh-mariadb105/lib/mysql-glpi
 %dir %{_nseventsdir}/%{name}-update
 %attr(0440,root,root) /etc/sudoers.d/50_nsapi_nethserver_glpi
 %dir %attr(0755,mysql,mysql) /var/opt/rh/rh-mariadb105/lib/mysql-glpi
+%{_datadir}/%{glpi_name}
+%config(noreplace) %{_sysconfdir}/logrotate.d/glpi
+%dir %attr(2770,apache,apache) %{_sysconfdir}/%{glpi_name}
+%config(noreplace) %{_sysconfdir}/%{glpi_name}/local_define.php
+%dir %attr(0750,apache,apache) %{_datadir}/%{glpi_name}/config
+%dir %attr(0750,apache,apache) %{_datadir}/%{glpi_name}/marketplace
+# This folder can contain private information (sessions, docs, ...)
+%attr(2770,apache,apache) %{_localstatedir}/lib/%{glpi_name}/*
+%attr(2770,apache,apache) %dir %{_localstatedir}/log/%{glpi_name}
 
 %postun
 if [ $1 == 0 ] ; then
