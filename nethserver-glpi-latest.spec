@@ -125,28 +125,5 @@ if [ $1 == 0 ] ; then
 fi
 
 %changelog
-* Fri Jul 30 2021 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.3-1
-- Fix blank line in config_db.php  
-- https://github.com/stephdl/nethserver-glpi/pull/2
-- code from mrmarkus
-
-* Sat Jul 04 2020 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.2-1
-- Remove http templates after rpm removal
-
-* Thu Mar 05 2020  stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.1-1.ns7
-- Fix bad sudoers permission
-
-* Thu Dec 19 2019 Stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.0-1.NS7
-- Link in the cockpit application Page
-
-* Sun Sep 10 2017 Stephane de Labrusse <stephdl@de-labrusse.fr> 0.1.4-1.ns7
-- Restart httpd service on trusted-network
-
-* Wed Mar 29 2017 Stephane de Labrusse <stephdl@de-labrusse.fr> 0.1.3-1.ns7
-- Template expansion on trusted-network
-
-* Mon Mar 20 2017 stephane de Labrusse <stephdl@de-labrusse.fr> 0.1.2-1.ns7
-- Redirect the cron job email to /dev/null
-
-* Sun Mar 19 2017 stephane de Labrusse <stephdl@de-labrusse.fr> 0.1.1-1.ns7
-- First release to NS7
+* Wed Aug 25 2021 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.0
+- First release to NS7 with glpi 9.5.5
