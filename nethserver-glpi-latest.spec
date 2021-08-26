@@ -72,7 +72,7 @@ mv %{buildroot}/%{_localstatedir}/lib/%{glpi_name}/_log %{buildroot}%{_localstat
 
 # clean up
 find %{buildroot} -name remove.txt -exec rm -f {} \; -print
-
+rm -f %{buildroot}%{_datadir}/%{glpi_name}/install/install.php
 
 mkdir -p %{buildroot}/usr/share/cockpit/%{name}/
 mkdir -p %{buildroot}/usr/share/cockpit/nethserver/applications/
