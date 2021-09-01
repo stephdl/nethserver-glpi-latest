@@ -35,6 +35,7 @@ fi
 
 password=`perl -e "use NethServer::Password; print NethServer::Password::store('glpi');"`
 mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "CREATE DATABASE IF NOT EXISTS glpi;"
+mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "ALTER DATABASE glpi CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
 mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock --database glpi < /var/lib/nethserver/backup/rh-mariadb105/glpi.sql
 mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "CREATE USER IF NOT EXISTS 'glpi'@'%' IDENTIFIED BY '$password';"
 mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "grant all on glpi.* to 'glpi'@'%' identified by '$password';"

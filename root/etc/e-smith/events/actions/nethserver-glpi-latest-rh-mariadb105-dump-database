@@ -29,7 +29,7 @@ if [ ! -d $backup_dir ]; then
 fi
 
 mysqldump --socket /run/rh-mariadb105-mariadb/glpi-mysql.sock \
-    --databases glpi  \
+    --databases glpi --default-character-set=utf8mb4 \
     --skip-dump-date --ignore-table=mysql.event --single-transaction \
     --quick --add-drop-table \
     -r $backup_dir/glpi.sql
