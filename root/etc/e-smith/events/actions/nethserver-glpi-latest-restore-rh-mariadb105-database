@@ -42,8 +42,6 @@ mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "grant all on glpi.
 mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "GRANT USAGE ON *.* TO 'glpi'@'%' IDENTIFIED BY '$password';"
 mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "GRANT SELECT ON mysql.time_zone_name TO 'glpi'@'%';"
 mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "FLUSH PRIVILEGES"
-mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock mysql
-
 
 
 rm -f /var/lib/nethserver/backup/rh-mariadb105/glpi.sql
