@@ -19,7 +19,7 @@ Requires: nethserver-httpd
 Conflicts: glpi
 Requires: nethserver-rh-php73-php-fpm
 Requires: sclo-php73-php-sodium rh-php73-php-xmlrpc libsodium
-Requires: nethserver-rh-mariadb105
+Requires: nethserver-rh-mariadb105 rh-mariadb105-mariadb-server-utils
 %description
 Install and configure a glpi instance on NethServer
 GLPI is the Information Resource-Manager with an additional Administration-
