@@ -1,5 +1,5 @@
 Name: nethserver-glpi-latest
-Version: 1.0.1
+Version: 1.0.2
 Release: 1%{?dist}
 Summary: Configure glpi
 Source: %{name}-%{version}.tar.gz
@@ -125,6 +125,9 @@ if [ $1 == 0 ] ; then
 fi
 
 %changelog
+* Fri Jan 28 2021 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.2
+- Migrate old DB from glpi version 0.90
+- Bump to 9.5.7
 * Tue Sep 21 2021 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.1
 - Bump to 9.5.6
 * Wed Aug 25 2021 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.0
