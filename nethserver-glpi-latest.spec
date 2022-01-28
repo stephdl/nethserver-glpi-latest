@@ -125,7 +125,7 @@ if [ $1 == 0 ] ; then
 fi
 
 %changelog
-* Fri Jan 28 2021 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.2
+* Fri Jan 28 2022 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.2
 - Migrate old DB from glpi version 0.90
 - Bump to 9.5.7
 * Tue Sep 21 2021 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.1
