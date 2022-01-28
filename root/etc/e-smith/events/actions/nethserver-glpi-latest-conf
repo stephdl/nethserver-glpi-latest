@@ -19,6 +19,11 @@ source /opt/rh/rh-mariadb105/enable
 
 password=`perl -e "use NethServer::Password; print NethServer::Password::store('glpi');"`
 
+exitOnError () {
+    echo $1
+    exit 1
+}
+
 databaseTest () {
     out=$(mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -BN -e "select count(*) from information_schema.tables where table_type = 'BASE TABLE' and table_schema = 'glpi'")
     if [[ $((out)) -gt "0" ]]; then
@@ -43,20 +48,75 @@ if [[ $? -ne 0 ]]; then
     done
 fi
 
-if databaseTest ; then
+# verify if the db exists and if mysql is installed
+database=""
+if [[ -x '/usr/bin/mysql' ]]; then
+    database=$(/usr/bin/mysql -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'glpi'")
+fi
+
+if [[ -n $database ]]; then
+    # we still use mariadb55, this is wrong we need rh-mariadb105
+
+    tmp_sql=`mktemp`
+    trap "rm -f $tmp_sql" EXIT
+
+    # Dump the mariadb55 glpi database or exit on error
+    /usr/bin/mysqldump --databases glpi > $tmp_sql
+    if [[ $? -ne 0 ]]; then
+        exitOnError "[ERROR] Error while dumping glpi database from mariadb55"
+    fi
+ 
+    # We got the dump or exit on error
+    if [[ ! -f $tmp_sql ]]; then
+        exitOnError "[ERROR] There is no dumped glpi database"
+    fi
+ 
+    # Create the database in rh-mariadb105 and import the dump from mariadb55 or exit on error
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "CREATE DATABASE IF NOT EXISTS glpi;"
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock --database glpi < $tmp_sql
+    if [[ $? -ne 0 ]]; then
+        exitOnError "[ERROR] Error while restoring glpi database to SCL mariadb105"
+    fi
+ 
+    # we need to upgrade mariadb55 to mariadb105 or exit on error 
+    # https://access.redhat.com/documentation/en-us/red_hat_software_collections/3/html/3.3_release_notes/chap-migration
+    mysql_upgrade --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock --force
+    if [[ $? -ne 0 ]]; then
+        exitOnError "[ERROR] Error while upgrading glpi database"
+    fi
+ 
+    # rh-mariadb105 is created,migrated,updated we can remove mariadb55 and use the socket in glpi for the new database
+    # we test if the glpi database from SCL is not blank or wrong
+
+    if  ! databaseTest ; then
+        /usr/bin/mysql -e "drop database glpi;"
+
+        # Alter database for migration
+        mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "ALTER DATABASE glpi CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+        mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "grant all on glpi.* to 'glpi'@'%' identified by '$password';"
+        mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "FLUSH PRIVILEGES"
+        su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:enable"
+        su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console db:update --no-interaction"
+        su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:migration:myisam_to_innodb --no-interaction"
+        su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:disable"
+    fi
+else
     # initialize grants mysql glpi database
-    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "CREATE USER 'glpi'@'%' IDENTIFIED BY '$password';"
+    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "CREATE USER IF NOT EXISTS 'glpi'@'%' IDENTIFIED BY '$password';"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "GRANT USAGE ON *.* TO 'glpi'@'%' IDENTIFIED BY '$password';"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "CREATE DATABASE IF NOT EXISTS glpi;"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "ALTER DATABASE glpi CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "GRANT ALL PRIVILEGES ON glpi.* TO 'glpi'@'%';"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "GRANT SELECT ON mysql.time_zone_name TO 'glpi'@'%';"
     mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "FLUSH PRIVILEGES"
-    mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "use glpi"
-    #mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock glpi < /usr/share/glpi/install/mysql/glpi-empty.sql
+fi
+
+if databaseTest ; then
+    # intitialize sql tables
     su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console db:install --no-interaction --quiet --db-host=127.0.0.1 --db-port=8105 --db-name=glpi --db-user=glpi --db-password=$password --force --reconfigure"
     mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock mysql
 else
+    # upgrade sql tables
     su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:enable"
     su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console db:update --no-interaction"
     su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:disable"

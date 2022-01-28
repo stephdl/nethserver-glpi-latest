@@ -1,12 +1,12 @@
 Name: nethserver-glpi-latest
-Version: 1.0.1
+Version: 1.0.2
 Release: 1%{?dist}
 Summary: Configure glpi
 Source: %{name}-%{version}.tar.gz
 BuildArch: noarch
 URL: %{url_prefix}/%{name}
 License: GPL
-%define glpi_version 9.5.6
+%define glpi_version 9.5.7
 %define glpi_name glpi
 Source1: https://github.com/glpi-project/glpi/releases/download/%{glpi_version}/%{glpi_name}-%{glpi_version}.tgz 
 Source2: glpi-local_define.php
@@ -19,7 +19,7 @@ Requires: nethserver-httpd
 Conflicts: glpi
 Requires: nethserver-rh-php73-php-fpm
 Requires: sclo-php73-php-sodium rh-php73-php-xmlrpc libsodium
-Requires: nethserver-rh-mariadb105
+Requires: nethserver-rh-mariadb105 rh-mariadb105-mariadb-server-utils
 %description
 Install and configure a glpi instance on NethServer
 GLPI is the Information Resource-Manager with an additional Administration-
@@ -125,6 +125,9 @@ if [ $1 == 0 ] ; then
 fi
 
 %changelog
+* Fri Jan 28 2021 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.2
+- Migrate old DB from glpi version 0.90
+- Bump to 9.5.7
 * Tue Sep 21 2021 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.1
 - Bump to 9.5.6
 * Wed Aug 25 2021 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.0
