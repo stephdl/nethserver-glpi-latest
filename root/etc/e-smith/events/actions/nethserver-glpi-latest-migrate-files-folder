@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Migrate the file folder for version 0.90 to the location used by 9.5.x 
+
+if [[ -d '/var/lib/glpi/files' ]]; then 
+
+    /usr/bin/cp -rf  /var/lib/glpi/files/* /var/lib/glpi/
+    /usr/bin/mv /var/lib/glpi/files /var/lib/glpi/files_migrated
+    /usr/bin/chown -R apache:apache /var/lib/glpi/
+else 
+    exit 0
+fi
