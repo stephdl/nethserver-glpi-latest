@@ -30,7 +30,8 @@ event_templates('nethserver-glpi-latest-update', qw(
 
 event_actions('nethserver-glpi-latest-update', qw(
   initialize-default-databases 00
-   nethserver-glpi-latest-conf 40
+  nethserver-glpi-latest-migrate-files-folder 10
+  nethserver-glpi-latest-conf 40
 ));
 
 event_services('nethserver-glpi-latest-update', qw(
