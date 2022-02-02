@@ -100,6 +100,7 @@ if [[ -n $database ]]; then
         su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console db:update --no-interaction"
         su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:migration:myisam_to_innodb --no-interaction"
         mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock mysql
+        su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:migration:timestamps --no-interaction"
         su - apache -s /bin/bash -c "/opt/rh/rh-php73/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:disable"
     fi
 else
