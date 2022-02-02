@@ -1,5 +1,5 @@
 Name: nethserver-glpi-latest
-Version: 1.0.4
+Version: 1.0.5
 Release: 1%{?dist}
 Summary: Configure glpi
 Source: %{name}-%{version}.tar.gz
@@ -125,6 +125,8 @@ if [ $1 == 0 ] ; then
 fi
 
 %changelog
+* Wed Feb 2 2022 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.5
+- Populate the timezone
 * Tue Feb 1 2022 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.4
 - allow user glpi to mysql.time_zone_name
 * Mon Jan 31 2022 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.3
