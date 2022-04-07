@@ -1,12 +1,12 @@
 Name: nethserver-glpi-latest
-Version: 1.0.6
+Version: 1.0.7
 Release: 1%{?dist}
 Summary: Configure glpi
 Source: %{name}-%{version}.tar.gz
 BuildArch: noarch
 URL: %{url_prefix}/%{name}
 License: GPL
-%define glpi_version 9.5.7
+%define glpi_version 10.0.0-rc3
 %define glpi_name glpi
 Source1: https://github.com/glpi-project/glpi/releases/download/%{glpi_version}/%{glpi_name}-%{glpi_version}.tgz 
 Source2: glpi-local_define.php
@@ -17,8 +17,8 @@ BuildRequires: nethserver-devtools
 
 Requires: nethserver-httpd
 Conflicts: glpi
-Requires: nethserver-rh-php73-php-fpm
-Requires: sclo-php73-php-sodium rh-php73-php-xmlrpc libsodium
+Requires: nethserver-remi-php81-php-fpm
+Requires: php81-php-sodium php81-php-xmlrpc libsodium
 Requires: nethserver-rh-mariadb105 rh-mariadb105-mariadb-server-utils
 %description
 Install and configure a glpi instance on NethServer
@@ -125,6 +125,9 @@ if [ $1 == 0 ] ; then
 fi
 
 %changelog
+* Thu Apr 7 2022 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.7
+- Go to 10.0.0-rc3
+
 * Wed Feb 2 2022 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.6
 - Populate the timezone
 * Tue Feb 1 2022 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.4
