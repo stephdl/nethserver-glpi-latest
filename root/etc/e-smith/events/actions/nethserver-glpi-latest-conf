@@ -97,8 +97,10 @@ if [[ -n $database ]]; then
         mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "GRANT SELECT ON mysql.time_zone_name TO 'glpi'@'%';"
         mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock -e "FLUSH PRIVILEGES"
         su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:enable"
-        su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console db:update --no-interaction"
+        su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console db:update --allow-unstable --no-interaction"
         su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console glpi:migration:myisam_to_innodb --no-interaction"
+        su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console glpi:migration:utf8mb4 --no-interaction"
+        su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console glpi:migration:unsigned_keys --no-interaction"
         mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --socket=/run/rh-mariadb105-mariadb/glpi-mysql.sock mysql
         su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console glpi:migration:timestamps --no-interaction"
         su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:disable"
@@ -121,6 +123,9 @@ if databaseTest ; then
 else
     # upgrade sql tables
     su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:enable"
-    su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console db:update --no-interaction"
+    su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console db:update --allow-unstable --no-interaction"
+    su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console glpi:migration:myisam_to_innodb --no-interaction"
+    su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console glpi:migration:utf8mb4 --no-interaction"
+    su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console glpi:migration:unsigned_keys --no-interaction"
     su - apache -s /bin/bash -c "/opt/remi/php81/root/bin/php /usr/share/glpi/bin/console glpi:maintenance:disable"
 fi
