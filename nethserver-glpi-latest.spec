@@ -1,5 +1,5 @@
 Name: nethserver-glpi-latest
-Version: 1.0.7
+Version: 1.0.8
 Release: 1%{?dist}
 Summary: Configure glpi
 Source: %{name}-%{version}.tar.gz
@@ -114,6 +114,7 @@ mkdir -p %{buildroot}/var/opt/rh/rh-mariadb105/lib/mysql-glpi
 %config(noreplace) %{_sysconfdir}/%{glpi_name}/local_define.php
 %dir %attr(0750,apache,apache) %{_datadir}/%{glpi_name}/config
 %dir %attr(0750,apache,apache) %{_datadir}/%{glpi_name}/marketplace
+%dir %attr(0750,apache,apache) %{_datadir}/%{glpi_name}/plugins
 # This folder can contain private information (sessions, docs, ...)
 %attr(2770,apache,apache) %{_localstatedir}/lib/%{glpi_name}/*
 %attr(2770,apache,apache) %dir %{_localstatedir}/log/%{glpi_name}
@@ -125,6 +126,9 @@ if [ $1 == 0 ] ; then
 fi
 
 %changelog
+* Tue Aug 16 2022 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.8
+- allow apache in /usr/share/glpi/plugins
+
 * Mon Aug 8 2022 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.7
 - go to 9.5.8
 
