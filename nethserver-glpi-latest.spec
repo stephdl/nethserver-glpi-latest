@@ -131,7 +131,7 @@ fi
 
 * Wed Apr 05 2023 Stephane de Labrusse <stephdl@de-labrusse.fr> - 1.0.9-1
 
-* wed april 5 2023 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.9
+* wed Apr 5 2023 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.9
 - go to 9.5.12
 
 * Tue Aug 16 2022 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.8
