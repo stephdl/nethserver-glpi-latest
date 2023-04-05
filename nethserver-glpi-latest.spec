@@ -1,5 +1,5 @@
 Name: nethserver-glpi-latest
-Version: 1.0.9
+Version: 1.0.10
 Release: 1%{?dist}
 Summary: Configure glpi
 Source: %{name}-%{version}.tar.gz
@@ -126,6 +126,9 @@ if [ $1 == 0 ] ; then
 fi
 
 %changelog
+* Wed Apr 05 2023 Stephane de Labrusse <stephdl@de-labrusse.fr> - 1.0.10-1
+- go to 9.5.12 
+
 * Wed Apr 05 2023 Stephane de Labrusse <stephdl@de-labrusse.fr> - 1.0.9-1
 
 * wed april 5 2023 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.9
