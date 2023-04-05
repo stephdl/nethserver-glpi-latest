@@ -1,12 +1,12 @@
 Name: nethserver-glpi-latest
-Version: 1.0.8
+Version: 1.0.9
 Release: 1%{?dist}
 Summary: Configure glpi
 Source: %{name}-%{version}.tar.gz
 BuildArch: noarch
 URL: %{url_prefix}/%{name}
 License: GPL
-%define glpi_version 9.5.8
+%define glpi_version 9.5.12
 %define glpi_name glpi
 Source1: https://github.com/glpi-project/glpi/releases/download/%{glpi_version}/%{glpi_name}-%{glpi_version}.tgz 
 Source2: glpi-local_define.php
@@ -126,6 +126,9 @@ if [ $1 == 0 ] ; then
 fi
 
 %changelog
+* wed april 5 2023 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.9
+- go to 9.5.12
+
 * Tue Aug 16 2022 stephane de Labrusse <stephdl@de-labrusse.fr> 1.0.8
 - allow apache in /usr/share/glpi/plugins
 
